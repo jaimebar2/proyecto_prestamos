@@ -2,15 +2,57 @@ import api from "./services/api";
 import { useState } from "react";
 
 const EQUIPOS = [
-  { id: 1, nombre: "Laptop Dell Inspiron 15", tipo: "Laptop", estado: "Disponible", imagen: "💻" },
-  { id: 2, nombre: "Proyector Epson X2000", tipo: "Proyector", estado: "Disponible", imagen: "📽️" },
-  { id: 3, nombre: "Cámara Canon EOS 200D", tipo: "Cámara", estado: "No disponible", imagen: "📷" },
-  { id: 4, nombre: "Cable HDMI 5m", tipo: "Cable", estado: "Disponible", imagen: "🔌" },
+  {
+    id: 1,
+    nombre: "Laptop Dell Inspiron 15",
+    tipo: "Laptop",
+    estado: "Disponible",
+    imagen: "💻",
+  },
+  {
+    id: 2,
+    nombre: "Proyector Epson X2000",
+    tipo: "Proyector",
+    estado: "Disponible",
+    imagen: "📽️",
+  },
+  {
+    id: 3,
+    nombre: "Cámara Canon EOS 200D",
+    tipo: "Cámara",
+    estado: "No disponible",
+    imagen: "📷",
+  },
+  {
+    id: 4,
+    nombre: "Cable HDMI 5m",
+    tipo: "Cable",
+    estado: "Disponible",
+    imagen: "🔌",
+  },
 ];
 
 const SOLICITUDES_INIT = [
-  { id: 1, usuario: "María Coronado", equipo: "Proyector Epson X2000", equipoId: 2, prestamo: "10/05/2024", devolucion: "15/05/2024", estado: "Pendiente", motivo: "Actividad académica" },
-  { id: 2, usuario: "Juan Pérez", equipo: "Laptop Dell Inspiron 15", equipoId: 1, prestamo: "02/05/2024", devolucion: "05/05/2024", estado: "Aprobado", motivo: "Trabajo final" },
+  {
+    id: 1,
+    usuario: "María Coronado",
+    equipo: "Proyector Epson X2000",
+    equipoId: 2,
+    prestamo: "10/05/2024",
+    devolucion: "15/05/2024",
+    estado: "Pendiente",
+    motivo: "Actividad académica",
+  },
+  {
+    id: 2,
+    usuario: "Juan Pérez",
+    equipo: "Laptop Dell Inspiron 15",
+    equipoId: 1,
+    prestamo: "02/05/2024",
+    devolucion: "05/05/2024",
+    estado: "Aprobado",
+    motivo: "Trabajo final",
+  },
 ];
 
 const COLORS = {
@@ -61,7 +103,7 @@ const Badge = ({ status }) => {
   );
 };
 
-const Sidebar = ({ page, setPage }) => {
+const Sidebar = ({ page, setPage, logout }) => {
   const links = [
     { id: "dashboard", label: "Inicio", icon: "🏠" },
     { id: "equipos", label: "Equipos", icon: "💻" },
@@ -87,7 +129,7 @@ const Sidebar = ({ page, setPage }) => {
         </h2>
       </div>
 
-      <nav style={{ padding: 10 }}>
+      <nav style={{ padding: 10, flex: 1 }}>
         {links.map((l) => (
           <button
             key={l.id}
@@ -103,7 +145,9 @@ const Sidebar = ({ page, setPage }) => {
               background:
                 page === l.id ? COLORS.blueBg : "transparent",
               color:
-                page === l.id ? COLORS.primary : COLORS.gray600,
+                page === l.id
+                  ? COLORS.primary
+                  : COLORS.gray600,
               fontWeight: 600,
             }}
           >
@@ -111,6 +155,22 @@ const Sidebar = ({ page, setPage }) => {
           </button>
         ))}
       </nav>
+
+      <button
+        onClick={logout}
+        style={{
+          margin: 10,
+          padding: 12,
+          borderRadius: 8,
+          border: "none",
+          cursor: "pointer",
+          background: COLORS.red,
+          color: "#fff",
+          fontWeight: 700,
+        }}
+      >
+        Cerrar sesión
+      </button>
     </div>
   );
 };
@@ -132,6 +192,7 @@ const TopBar = ({ title, subtitle }) => (
       <h2 style={{ margin: 0, color: COLORS.gray800 }}>
         {title}
       </h2>
+
       <p style={{ margin: 0, color: COLORS.gray400 }}>
         {subtitle}
       </p>
@@ -156,6 +217,43 @@ const TopBar = ({ title, subtitle }) => (
 );
 
 function LoginPage({ onLogin }) {
+  const [correo, setCorreo] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!correo || !password) {
+      alert("Completa todos los campos");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await api.post("/api/auth/login", {
+        correo,
+        password,
+      });
+
+      if (response.data.success) {
+        localStorage.setItem(
+          "usuario",
+          JSON.stringify(response.data.usuario)
+        );
+
+        onLogin();
+      } else {
+        alert("Credenciales incorrectas");
+      }
+    } catch (error) {
+      console.log(error);
+
+      alert("Error al iniciar sesión");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div
       style={{
@@ -179,7 +277,9 @@ function LoginPage({ onLogin }) {
       >
         <div>
           <div style={{ fontSize: 80 }}>💻📽️📷</div>
+
           <h1>Sistema de Préstamo</h1>
+
           <p>Universidad · Laboratorios</p>
         </div>
       </div>
@@ -205,6 +305,8 @@ function LoginPage({ onLogin }) {
           <h2>Iniciar sesión</h2>
 
           <input
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
             placeholder="Correo"
             style={{
               width: "100%",
@@ -218,6 +320,8 @@ function LoginPage({ onLogin }) {
 
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Contraseña"
             style={{
               width: "100%",
@@ -230,7 +334,8 @@ function LoginPage({ onLogin }) {
           />
 
           <button
-            onClick={onLogin}
+            onClick={handleSubmit}
+            disabled={loading}
             style={{
               width: "100%",
               padding: 12,
@@ -242,7 +347,7 @@ function LoginPage({ onLogin }) {
               fontWeight: 700,
             }}
           >
-            Ingresar
+            {loading ? "Ingresando..." : "Ingresar"}
           </button>
         </div>
       </div>
@@ -280,6 +385,7 @@ function DashboardPage({ setPage }) {
             }}
           >
             <h3>💻 Equipos</h3>
+
             <p>Consulta los equipos disponibles.</p>
 
             <button
@@ -306,10 +412,13 @@ function DashboardPage({ setPage }) {
             }}
           >
             <h3>📋 Solicitudes</h3>
+
             <p>Revisa tus solicitudes realizadas.</p>
 
             <button
-              onClick={() => setPage("mis-solicitudes")}
+              onClick={() =>
+                setPage("mis-solicitudes")
+              }
               style={{
                 padding: "10px 18px",
                 background: COLORS.primary,
@@ -434,9 +543,17 @@ function SolicitudesPage({ solicitudes }) {
           >
             <thead>
               <tr>
-                <th style={{ padding: 16 }}>Equipo</th>
-                <th style={{ padding: 16 }}>Usuario</th>
-                <th style={{ padding: 16 }}>Estado</th>
+                <th style={{ padding: 16 }}>
+                  Equipo
+                </th>
+
+                <th style={{ padding: 16 }}>
+                  Usuario
+                </th>
+
+                <th style={{ padding: 16 }}>
+                  Estado
+                </th>
               </tr>
             </thead>
 
@@ -466,11 +583,24 @@ function SolicitudesPage({ solicitudes }) {
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+
   const [page, setPage] = useState("dashboard");
-  const [solicitudes] = useState(SOLICITUDES_INIT);
+
+  const [solicitudes] = useState(
+    SOLICITUDES_INIT
+  );
+
+  const logout = () => {
+    localStorage.removeItem("usuario");
+    setLoggedIn(false);
+  };
 
   if (!loggedIn) {
-    return <LoginPage onLogin={() => setLoggedIn(true)} />;
+    return (
+      <LoginPage
+        onLogin={() => setLoggedIn(true)}
+      />
+    );
   }
 
   const renderPage = () => {
@@ -480,11 +610,15 @@ export default function App() {
 
       case "mis-solicitudes":
         return (
-          <SolicitudesPage solicitudes={solicitudes} />
+          <SolicitudesPage
+            solicitudes={solicitudes}
+          />
         );
 
       default:
-        return <DashboardPage setPage={setPage} />;
+        return (
+          <DashboardPage setPage={setPage} />
+        );
     }
   };
 
@@ -499,7 +633,12 @@ export default function App() {
         background: COLORS.gray50,
       }}
     >
-      <Sidebar page={page} setPage={setPage} />
+      <Sidebar
+        page={page}
+        setPage={setPage}
+        logout={logout}
+      />
+
       {renderPage()}
     </div>
   );
