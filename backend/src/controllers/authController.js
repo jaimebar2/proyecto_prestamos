@@ -4,6 +4,8 @@ const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
   try {
+    console.log(req.body);
+
     const { correo, password } = req.body;
 
     const result = await pool.query(
@@ -19,10 +21,14 @@ const login = async (req, res) => {
 
     const usuario = result.rows[0];
 
+    console.log(usuario.password);
+
     const validPassword = await bcrypt.compare(
       password,
       usuario.password
     );
+
+    console.log(validPassword);
 
     if (!validPassword) {
       return res.status(401).json({
