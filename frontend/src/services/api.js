@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:3000/api";
+const API_URL = "https://proyectoprestamos-production-bcc5.up.railway.app";
 
 const api = {
   login: async (data) => {
