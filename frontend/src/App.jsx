@@ -222,37 +222,50 @@ function LoginPage({ onLogin }) {
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
-    if (!correo || !password) {
-      alert("Completa todos los campos");
-      return;
+  if (!correo || !password) {
+    alert("Completa todos los campos");
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const response = await api.login({
+      correo,
+      password,
+    });
+
+    console.log(response);
+
+    if (response.token) {
+      localStorage.setItem(
+        "token",
+        response.token
+      );
+
+      localStorage.setItem(
+        "usuario",
+        JSON.stringify(response.usuario)
+      );
+
+      onLogin();
+
+    } else {
+      alert(
+        response.mensaje ||
+        "Credenciales incorrectas"
+      );
     }
 
-    try {
-      setLoading(true);
+  } catch (error) {
+    console.log(error);
 
-      const response = await api.post("/api/auth/login", {
-        correo,
-        password,
-      });
+    alert("Error al iniciar sesión");
 
-      if (response.data.success) {
-        localStorage.setItem(
-          "usuario",
-          JSON.stringify(response.data.usuario)
-        );
-
-        onLogin();
-      } else {
-        alert("Credenciales incorrectas");
-      }
-    } catch (error) {
-      console.log(error);
-
-      alert("Error al iniciar sesión");
-    } finally {
-      setLoading(false);
-    }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div

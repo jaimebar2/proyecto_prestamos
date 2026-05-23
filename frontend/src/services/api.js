@@ -12,6 +12,7 @@ const api = {
       });
 
       return await response.json();
+
     } catch (error) {
       console.log(error);
     }
