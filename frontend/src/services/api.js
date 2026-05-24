@@ -1,4 +1,4 @@
-const API_URL = "https://proyectoprestamos-production-bcc5.up.railway.app";
+const API_URL = "https://proyectoprestamos-production-bcc5.up.railway.app/api";
 
 const api = {
   login: async (data) => {
@@ -11,10 +11,16 @@ const api = {
         body: JSON.stringify(data),
       });
 
-      return await response.json();
+      const result = await response.json();
+
+      return result;
 
     } catch (error) {
-      console.log(error);
+      console.log("Error login:", error);
+
+      return {
+        mensaje: "Error de conexión con el servidor",
+      };
     }
   },
 };
