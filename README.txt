@@ -1,1 +1,0 @@
-Sistema de Prestamo de Equipos

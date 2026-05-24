@@ -1,4 +1,5 @@
 const express = require("express");
+const solicitudesRoutes = require("./routes/solicitudesRoutes");
 const cors = require("cors");
 require("dotenv").config();
 
@@ -6,11 +7,7 @@ const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
-app.use(cors({
-  origin: "*",
-  credentials: true
-}));
-
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -18,6 +15,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/solicitudes", solicitudesRoutes);
 
 const PORT = process.env.PORT || 3000;
 
